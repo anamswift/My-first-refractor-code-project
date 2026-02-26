@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refactor AI</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Courier New',monospace;min-height:100vh;background:linear-gradient(135deg,#0d0030 0%,#1a0050 30%,#000d3a 60%,#0a0020 100%);color:white;overflow-x:hidden}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0}
+.orb1{width:500px;height:500px;top:-150px;left:-150px;background:rgba(100,0,220,0.25);animation:orbF 12s ease-in-out infinite}
+.orb2{width:600px;height:600px;bottom:-200px;right:-200px;background:rgba(0,60,200,0.22);animation:orbF 16s ease-in-out infinite;animation-delay:-6s}
+@keyframes orbF{0%,100%{transform:translate(0,0)}50%{transform:translate(55px,45px)}}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(110,50,255,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(110,50,255,0.05) 1px,transparent 1px);background-size:45px 45px;pointer-events:none;z-index:0}
+.page{position:relative;z-index:1;max-width:1050px;margin:0 auto;padding:30px 20px 60px}
+.header{text-align:center;margin-bottom:20px;animation:sDown 0.7s ease both}
+@keyframes sDown{from{opacity:0;transform:translateY(-25px)}to{opacity:1;transform:translateY(0)}}
+.dev-badge{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(90deg,rgba(110,0,200,0.4),rgba(0,50,180,0.4));border:1px solid rgba(190,140,255,0.4);border-radius:40px;padding:8px 24px;font-size:0.7rem;letter-spacing:3px;color:#ddbfff;margin-bottom:18px;animation:bGlow 3s ease-in-out infinite}
+@keyframes bGlow{0%,100%{box-shadow:0 0 12px rgba(140,70,255,0.3)}50%{box-shadow:0 0 35px rgba(140,70,255,0.7),0 0 70px rgba(60,100,255,0.3)}}
+.dot{width:9px;height:9px;border-radius:50%;background:#cc55ff;animation:dPulse 1.5s ease-in-out infinite}
+@keyframes dPulse{0%,100%{background:#cc55ff;box-shadow:0 0 6px #cc55ff}50%{background:#4488ff;box-shadow:0 0 6px #4488ff}}
+.dev-name{color:#f2c94c;font-weight:bold;letter-spacing:4px;font-size:0.85rem;animation:nShine 2s ease-in-out infinite}
+@keyframes nShine{0%,100%{text-shadow:0 0 8px rgba(242,201,76,0.5)}50%{text-shadow:0 0 20px rgba(242,201,76,1),0 0 40px rgba(242,201,76,0.4)}}
+.logo-wrap{display:flex;justify-content:center;margin:10px 0 18px}
+.logo-svg{width:520px;height:210px;overflow:visible;filter:drop-shadow(0 0 18px rgba(140,60,255,0.35))}
+@keyframes snakeW{0%,100%{transform:translateY(0)}30%{transform:translateY(-12px)}70%{transform:translateY(-6px)}}
+.snake-g{animation:snakeW 3s ease-in-out infinite;transform-origin:320px 105px}
+@keyframes eyeB{0%,85%,100%{transform:scaleY(1)}90%{transform:scaleY(0.05)}}
+.eye{fill:#080010;animation:eyeB 4s ease-in-out infinite;transform-origin:center}
+.eyes{fill:white}
+@keyframes tong{0%,72%,100%{opacity:0;transform:scaleX(0)}78%,94%{opacity:1;transform:scaleX(1)}}
+.tongue{stroke:#ff2020;stroke-width:3;fill:none;stroke-linecap:round;transform-origin:435px 90px;animation:tong 3.5s ease-in-out infinite}
+@keyframes ven{0%,100%{opacity:0;transform:translateY(0)}50%{opacity:1;transform:translateY(7px)}}
+.vd{fill:#55ffaa;animation:ven 2.6s ease-in-out infinite}
+.vd2{fill:#55ffaa;animation:ven 2.6s ease-in-out infinite;animation-delay:0.7s}
+@keyframes mugT{0%,100%{transform:rotate(-4deg)}42%,58%{transform:rotate(21deg)}}
+.mug-g{animation:mugT 4.5s ease-in-out infinite;transform-origin:120px 145px}
+@keyframes stm{0%{opacity:.85;transform:translateY(0) scaleX(1)}100%{opacity:0;transform:translateY(-44px) scaleX(1.8)}}
+.st{stroke:rgba(200,170,255,0.7);stroke-width:3.5;fill:none;stroke-linecap:round;animation:stm 2.1s ease-out infinite}
+.st2{stroke:rgba(200,170,255,0.7);stroke-width:3.5;fill:none;stroke-linecap:round;animation:stm 2.1s ease-out infinite;animation-delay:.65s}
+.st3{stroke:rgba(200,170,255,0.7);stroke-width:3.5;fill:none;stroke-linecap:round;animation:stm 2.1s ease-out infinite;animation-delay:1.3s}
+@keyframes slosh{0%,100%{transform:rotate(0deg)}42%,58%{transform:rotate(-21deg) translate(5px,3px)}}
+.coff{animation:slosh 4.5s ease-in-out infinite;transform-origin:124px 108px}
+@keyframes spA{0%{opacity:0;transform:translateY(-5px) scaleX(0.3)}18%{opacity:1;transform:translateY(0) scaleX(1)}82%{opacity:1;transform:translateY(34px) scaleX(1.4)}100%{opacity:0;transform:translateY(50px) scaleX(1.7)}}
+.sp{fill:#5a2200;animation:spA 2s ease-in infinite}
+.sp2{fill:#5a2200;animation:spA 2s ease-in infinite;animation-delay:.5s}
+.sp3{fill:#5a2200;animation:spA 2s ease-in infinite;animation-delay:1s}
+@keyframes pudA{0%,100%{opacity:.5}50%{opacity:.85}}
+.puddle{fill:#3a1400;animation:pudA 2s ease-in-out infinite}
+@keyframes lbl{0%,100%{fill:white}50%{fill:#f2c94c}}
+.lbl{font-size:11px;text-anchor:middle;font-family:'Courier New',monospace;font-weight:bold;animation:lbl 2s ease-in-out infinite}
+.title{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:900;letter-spacing:4px;text-transform:uppercase;color:white;text-shadow:0 0 30px rgba(170,90,255,0.8),0 0 60px rgba(80,0,255,0.3);margin-bottom:5px}
+.title span{color:#f2c94c}
+.subtitle{font-size:0.85rem;color:rgba(190,155,255,0.65);letter-spacing:3px;text-transform:uppercase}
+.divider{height:1px;background:linear-gradient(90deg,transparent,#cc55ff,#4488ff,transparent);margin:22px 0;opacity:0.55}
+.card{background:rgba(255,255,255,0.04);border:1px solid rgba(170,90,255,0.2);border-radius:20px;padding:30px;backdrop-filter:blur(16px);box-shadow:0 0 50px rgba(90,0,220,0.15),inset 0 1px 0 rgba(255,255,255,0.05);animation:sUp 0.8s ease both;animation-delay:.15s}
+@keyframes sUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+.sec-lbl{font-size:0.62rem;letter-spacing:3px;color:#cc55ff;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.sec-lbl::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#cc55ff,transparent);opacity:0.35}
+textarea{width:100%;height:195px;border-radius:12px;border:1.5px solid rgba(140,70,255,0.3);padding:15px;background:rgba(4,0,22,0.65);color:#ddd0ff;font-family:'Courier New',monospace;font-size:0.88rem;line-height:1.65;resize:vertical;transition:border-color 0.3s,box-shadow 0.3s}
+textarea::placeholder{color:rgba(160,120,255,0.3)}
+textarea:focus{outline:none;border-color:#cc55ff;box-shadow:0 0 0 3px rgba(180,70,255,0.12),0 0 22px rgba(140,0,255,0.15)}
+.file-zone{margin-top:13px;padding:15px 18px;border:1.5px dashed rgba(140,70,255,0.3);border-radius:12px;text-align:center;color:#d9aaff;font-size:0.85rem;letter-spacing:1px;transition:all 0.3s}
+.file-zone:hover{background:rgba(140,70,255,0.06);border-color:#cc55ff}
+input[type="file"]{color:rgba(195,160,255,0.6);margin:8px auto 0;font-size:0.8rem;display:block}
+.btn{margin-top:18px;width:100%;padding:15px;border:none;border-radius:12px;cursor:pointer;font-family:'Courier New',monospace;font-weight:bold;font-size:0.95rem;letter-spacing:2px;color:white;text-transform:uppercase;background:linear-gradient(90deg,#6600dd,#2244ee);box-shadow:0 0 22px rgba(90,0,220,0.45),0 4px 14px rgba(0,0,0,0.3);transition:transform 0.15s,box-shadow 0.3s}
+.btn:hover{box-shadow:0 0 42px rgba(90,0,220,0.65);transform:translateY(-2px)}
+.btn:active{transform:translateY(1px)}
+.err-box{margin-top:15px;padding:13px 18px;background:rgba(180,0,0,0.1);border:1px solid rgba(255,70,70,0.3);border-radius:10px;color:#ff7878;font-size:0.9rem;display:flex;gap:10px;align-items:center}
+.out-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:26px}
+@media(max-width:680px){.out-grid{grid-template-columns:1fr}.logo-svg{width:320px;height:140px}}
+.out-panel{background:rgba(3,0,18,0.75);border:1px solid rgba(120,55,210,0.22);border-radius:14px;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s}
+.out-panel:hover{border-color:rgba(170,90,255,0.45);box-shadow:0 0 28px rgba(110,0,230,0.12)}
+.p-head{padding:11px 16px;background:linear-gradient(90deg,rgba(90,0,180,0.28),rgba(0,35,160,0.22));border-bottom:1px solid rgba(120,55,210,0.2);display:flex;align-items:center;gap:10px}
+.p-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.p-icon.py{background:rgba(80,180,80,0.15)}
+.p-icon.doc{background:rgba(80,130,255,0.15)}
+.p-icon.test{background:rgba(80,200,120,0.15)}
+.p-icon.eval{background:rgba(200,150,50,0.15)}
+.p-title{font-size:0.62rem;letter-spacing:2.5px;color:#d9aaff;text-transform:uppercase}
+.p-body{padding:15px 17px;min-height:110px;max-height:370px;overflow-y:auto;font-family:'Courier New',monospace;font-size:0.82rem;line-height:1.7;color:#cfc0ff;white-space:pre-wrap;word-break:break-word}
+.p-body::-webkit-scrollbar{width:5px}
+.p-body::-webkit-scrollbar-thumb{background:rgba(140,70,255,0.4);border-radius:3px}
+.p-empty{color:rgba(140,110,190,0.35);font-style:italic;font-size:0.88rem}
+.status{margin-top:26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 17px;background:rgba(255,255,255,0.02);border:1px solid rgba(120,55,210,0.12);border-radius:10px;font-size:0.72rem;color:rgba(165,135,215,0.5);letter-spacing:1px}
+.s-dot{width:7px;height:7px;border-radius:50%;background:#44ff88;box-shadow:0 0 7px #44ff88;display:inline-block;margin-right:7px;animation:sP 2s ease-in-out infinite}
+@keyframes sP{0%,100%{opacity:1}50%{opacity:0.35}}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="page">
+<div class="header">
+<div class="dev-badge">
+<div class="dot"></div>
+<span>DEVELOPER</span>
+<span class="dev-name">&#10022; ANAM &#10022;</span>
+<div class="dot"></div>
+</div>
+<div class="logo-wrap">
+<svg class="logo-svg" viewBox="0 0 530 210" xmlns="http://www.w3.org/2000/svg">
+<g class="mug-g">
+<path class="st"  d="M 102 84 Q 95 68 102 52"/>
+<path class="st2" d="M 122 80 Q 115 60 122 42"/>
+<path class="st3" d="M 142 84 Q 150 66 142 48"/>
+<rect x="76" y="96" width="96" height="72" rx="10" fill="#0f0005" stroke="#c07030" stroke-width="2.5"/>
+<g class="coff">
+<ellipse cx="124" cy="107" rx="45" ry="12" fill="#3a1800"/>
+<ellipse cx="110" cy="105" rx="10" ry="5" fill="#6a3208" opacity="0.7"/>
+<ellipse cx="135" cy="108" rx="7" ry="3.5" fill="#562a06" opacity="0.6"/>
+</g>
+<path d="M 172 113 Q 198 113 198 137 Q 198 161 172 161" fill="none" stroke="#c07030" stroke-width="9" stroke-linecap="round"/>
+<rect x="82" y="127" width="84" height="33" rx="5" fill="rgba(255,255,255,0.03)" stroke="rgba(200,120,50,0.28)" stroke-width="1"/>
+<text x="124" y="148" class="lbl" fill="white">ANAM</text>
+<line x1="80" y1="166" x2="168" y2="166" stroke="#c07030" stroke-width="2" opacity="0.3"/>
+<rect class="sp"  x="157" y="108" width="8" height="24" rx="4"/>
+<rect class="sp2" x="147" y="105" width="6" height="20" rx="3"/>
+<rect class="sp3" x="167" y="111" width="5" height="17" rx="2.5"/>
+<ellipse class="puddle" cx="161" cy="178" rx="24" ry="6"/>
+<circle class="sp"  cx="159" cy="175" r="4" style="animation-delay:.2s"/>
+<circle class="sp2" cx="170" cy="170" r="3" style="animation-delay:.7s"/>
+<circle class="sp3" cx="152" cy="172" r="2.5" style="animation-delay:1.1s"/>
+</g>
+<g class="snake-g">
+<path d="M 232 158 Q 282 60 326 108 Q 366 155 412 88" fill="none" stroke="#7a3e10" stroke-width="27" stroke-linecap="round"/>
+<path d="M 232 158 Q 282 60 326 108 Q 366 155 412 88" fill="none" stroke="#f2c94c" stroke-width="22" stroke-linecap="round"/>
+<ellipse cx="283" cy="76" rx="9" ry="5.5" fill="#6b3a10" transform="rotate(-42 283 76)"/>
+<ellipse cx="326" cy="108" rx="9" ry="5.5" fill="#6b3a10"/>
+<ellipse cx="366" cy="146" rx="9" ry="5.5" fill="#6b3a10" transform="rotate(42 366 146)"/>
+<ellipse cx="418" cy="85" rx="29" ry="21" fill="#f2c94c" stroke="#7a3e10" stroke-width="3"/>
+<ellipse class="eye"  cx="410" cy="76" rx="6.5" ry="7.5"/>
+<ellipse class="eyes" cx="408" cy="74" rx="2" ry="2"/>
+<circle cx="435" cy="81" r="2.5" fill="#7a3e10"/>
+<path d="M 418 93 Q 428 100 437 93" fill="none" stroke="#7a3e10" stroke-width="1.5"/>
+<polygon points="408,100 404,121 412,121" fill="#8b5a2b"/>
+<polygon points="421,100 417,121 425,121" fill="#8b5a2b"/>
+<circle class="vd"  cx="408" cy="124" r="4.5"/>
+<circle class="vd2" cx="421" cy="124" r="4.5"/>
+<path class="tongue" d="M 437 90 L 458 90 M 458 90 L 465 83 M 458 90 L 465 97"/>
+</g>
+</svg>
+</div>
+<h1 class="title">Refacto<span>r</span> AI</h1>
+<p class="subtitle">AI Code Refactoring & Documentation Tool</p>
+</div>
+<div class="divider"></div>
+<div class="card">
+<form method="post" enctype="multipart/form-data" id="mainForm">
+<p class="sec-lbl">&#9654; Input Source Code</p>
+<textarea name="java_code" placeholder="// Paste your legacy Java or COBOL code here...">{{ original_code if original_code else '' }}</textarea>
+<div class="file-zone">
+&#128206; Or upload a source file (.java / .cob / .txt)
+<input type="file" name="file" accept=".java,.cob,.cbl,.txt,.js,.cpp">
+</div>
+<button type="submit" class="btn" id="submitBtn">&#9889; REFACTOR AND DOCUMENT CODE</button>
+</form>
+{% if error %}
+<div class="err-box">&#9888; {{ error }}</div>
+{% endif %}
+<div class="out-grid">
+
+<div class="out-panel">
+<div class="p-head">
+<div class="p-icon py">&#128013;</div>
+<span class="p-title">Python Output</span>
+</div>
+<div class="p-body">
+{% if translated %}{{ translated }}{% else %}<span class="p-empty">Refactored Python code will appear here...</span>{% endif %}
+</div>
+</div>
+
+<div class="out-panel">
+<div class="p-head">
+<div class="p-icon doc">&#128203;</div>
+<span class="p-title">Documentation</span>
+</div>
+<div class="p-body">
+{% if documentation %}{{ documentation }}{% else %}<span class="p-empty">Auto-generated documentation will appear here...</span>{% endif %}
+</div>
+</div>
+
+<div class="out-panel">
+<div class="p-head">
+<div class="p-icon test">&#9989;</div>
+<span class="p-title">Unit Test Report</span>
+</div>
+<div class="p-body">
+{% if unit_tests %}{{ unit_tests }}{% else %}<span class="p-empty">Unit test results will appear here...</span>{% endif %}
+</div>
+</div>
+
+<div class="out-panel">
+<div class="p-head">
+<div class="p-icon eval">&#128202;</div>
+<span class="p-title">Evaluation Report</span>
+</div>
+<div class="p-body">
+{% if evaluation %}{{ evaluation }}{% else %}<span class="p-empty">Evaluation and scoring will appear here...</span>{% endif %}
+</div>
+</div>
+
+</div>
+<div class="status">
+<span><span class="s-dot"></span>SYSTEM ONLINE</span>
+<span>MODEL: CLAUDE OPUS 4</span>
+<span>LOGIC PRESERVATION: ENABLED</span>
+</div>
+</div>
+</div>
+<script>
+document.getElementById('mainForm').addEventListener('submit',function(){
+var btn=document.getElementById('submitBtn');
+btn.innerHTML='&#9203; PROCESSING... PLEASE WAIT';
+btn.style.opacity='0.75';
+btn.style.pointerEvents='none';
+});
+</script>
+</body>
+</html>
